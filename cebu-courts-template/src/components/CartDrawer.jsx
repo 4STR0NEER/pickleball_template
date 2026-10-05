@@ -7,11 +7,12 @@ import { getSport } from '../data/availability.js'
 import { formatRange, formatShortDate, peso } from '../utils/date.js'
 import Button from './Button.jsx'
 
-const EASE = [0.22, 1, 0.36, 1]
+// iOS style drawer curve: fast start, long settle
+const EASE = [0.32, 0.72, 0, 1]
 
 export default function CartDrawer() {
   const { items, count, total, remove, clear, open, setOpen } = useCart()
-  const fx = useShowcase().tier === 'intermediate'
+  const fx = useShowcase().tier !== 'basic'
   const [notice, setNotice] = useState(false)
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function CartDrawer() {
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={t(0.55)}
+            transition={t(0.42)}
           >
             <header className="flex items-center justify-between border-b border-line px-6 py-5">
               <div>

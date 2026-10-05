@@ -3,13 +3,14 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { useShowcase } from './context/ShowcaseContext.jsx'
 import Loader from './components/Loader.jsx'
 import LoaderIntermediate from './components/intermediate/LoaderIntermediate.jsx'
+import LoaderPro from './components/pro/LoaderPro.jsx'
 import ShowcasePanel from './components/ShowcasePanel.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
 import CartButton from './components/CartButton.jsx'
-import ComingSoon from './pages/ComingSoon.jsx'
 import Landing from './pages/Landing.jsx'
 import Booking from './pages/Booking.jsx'
 import IntermediateLanding from './pages/IntermediateLanding.jsx'
+import ProLanding from './pages/ProLanding.jsx'
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -47,10 +48,16 @@ export default function App() {
             <Route path="*" element={<IntermediateLanding />} />
           </Routes>
         )}
-        {tier === 'pro' && <ComingSoon tier={tier} />}
+        {tier === 'pro' && (
+          <Routes>
+            <Route path="/" element={<ProLanding />} />
+            <Route path="/booking" element={<Booking />} />
+            <Route path="*" element={<ProLanding />} />
+          </Routes>
+        )}
       </div>
 
-      {tier !== 'pro' && (
+      {(
         <>
           <CartButton />
           <CartDrawer />
@@ -58,7 +65,9 @@ export default function App() {
       )}
 
       {loading &&
-        (tier === 'intermediate' ? (
+        (tier === 'pro' ? (
+          <LoaderPro key={loaderKey} onDone={finishLoading} />
+        ) : tier === 'intermediate' ? (
           <LoaderIntermediate key={loaderKey} onDone={finishLoading} />
         ) : (
           <Loader key={loaderKey} onDone={finishLoading} />

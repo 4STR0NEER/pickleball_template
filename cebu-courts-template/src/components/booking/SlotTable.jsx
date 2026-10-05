@@ -4,7 +4,8 @@ import { motion } from "motion/react";
 import { useCart, slotId } from "../../context/CartContext.jsx";
 import { useShowcase } from "../../context/ShowcaseContext.jsx";
 import { getDay, getSport, priceFor, isPeak } from "../../data/availability.js";
-import { formatLongDate, formatRange, peso } from "../../utils/date.js";
+import { formatLongDate, formatRange, pad, peso } from "../../utils/date.js";
+import { Housing, Seg, Stencil } from "../board/Board.jsx";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -21,11 +22,7 @@ function SlotRow({ fx, hour, price, peak, inCart, onClick, index }) {
     ? {
         initial: { opacity: 0, y: 8 },
         animate: { opacity: 1, y: 0 },
-        transition: {
-          duration: 0.35,
-          delay: Math.min(index, 10) * 0.03,
-          ease: EASE,
-        },
+        transition: { duration: 0.35, delay: Math.min(index, 10) * 0.03, ease: EASE },
       }
     : {};
 
@@ -46,9 +43,7 @@ function SlotRow({ fx, hour, price, peak, inCart, onClick, index }) {
           className={`absolute inset-y-0 right-0 bg-primary ${
             fx
               ? `transition-[width] ease-[cubic-bezier(0.65,0,0.35,1)] ${
-                  inCart
-                    ? "w-full duration-[650ms]"
-                    : "w-0 duration-[325ms] group-hover:w-14"
+                  inCart ? "w-full duration-[650ms]" : "w-0 duration-[325ms] group-hover:w-14"
                 }`
               : inCart
                 ? "w-full"
@@ -57,36 +52,22 @@ function SlotRow({ fx, hour, price, peak, inCart, onClick, index }) {
         />
         <span
           className={`relative z-10 px-4 py-3.5 font-semibold tabular-nums ${
-            fx
-              ? inCart
-                ? "transition-colors delay-300 duration-300"
-                : "transition-colors duration-200"
-              : ""
+            fx ? (inCart ? "transition-colors delay-300 duration-300" : "transition-colors duration-200") : ""
           } ${inCart ? "text-on-primary" : "text-ink"}`}
         >
-          {formatRange(hour)}
-          {peak && (
-            <span className="ml-2 text-xs font-medium opacity-60">Peak</span>
-          )}
+          <span className="whitespace-nowrap">{formatRange(hour)}</span>
+          {peak && <span className="block text-xs font-medium opacity-60 sm:ml-2 sm:inline">Peak</span>}
         </span>
         <span
           className={`relative z-10 pr-4 text-sm tabular-nums ${
-            fx
-              ? inCart
-                ? "transition-colors delay-200 duration-300"
-                : "transition-colors duration-200"
-              : ""
+            fx ? (inCart ? "transition-colors delay-200 duration-300" : "transition-colors duration-200") : ""
           } ${inCart ? "text-on-primary" : "text-ink/70"}`}
         >
           {peso(price)}
         </span>
         <span
           className={`relative z-10 flex justify-center ${fx ? "transition-colors duration-200" : ""} ${
-            inCart
-              ? "text-on-primary"
-              : fx
-                ? "text-ink group-hover:text-on-primary"
-                : "text-ink"
+            inCart ? "text-on-primary" : fx ? "text-ink group-hover:text-on-primary" : "text-ink"
           }`}
         >
           {fx ? (
@@ -103,9 +84,7 @@ function SlotRow({ fx, hour, price, peak, inCart, onClick, index }) {
             <Icon size={17} aria-hidden="true" />
           )}
         </span>
-        <span className="sr-only">
-          {inCart ? ", in cart. Select to remove" : ", add to cart"}
-        </span>
+        <span className="sr-only">{inCart ? ", in cart. Select to remove" : ", add to cart"}</span>
       </button>
     </Item>
   );
@@ -113,7 +92,7 @@ function SlotRow({ fx, hour, price, peak, inCart, onClick, index }) {
 
 export default function SlotTable({ sportId, dateKey }) {
   const { has, toggle } = useCart();
-  const fx = useShowcase().tier === "intermediate";
+  const fx = useShowcase().tier !== "basic";
   const sport = getSport(sportId);
   const day = getDay(sportId, dateKey);
 
@@ -121,14 +100,9 @@ export default function SlotTable({ sportId, dateKey }) {
   const courts = useMemo(
     () =>
       sport.courts
-        .map((c) => ({
-          ...c,
-          hours: day.slots
-            .filter((s) => s.free.includes(c.id))
-            .map((s) => s.hour),
-        }))
+        .map((c) => ({ ...c, hours: day.slots.filter((s) => s.free.includes(c.id)).map((s) => s.hour) }))
         .filter((c) => c.hours.length > 0),
-    [sport, day],
+    [sport, day]
   );
 
   // Keeps the chosen court when switching dates, if it's still open
@@ -137,32 +111,33 @@ export default function SlotTable({ sportId, dateKey }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="border-b border-line p-6">
-        <p className="text-sm text-ink/60">{sport.name}</p>
-        <h2 className="display mt-1 text-2xl">{formatLongDate(dateKey)}</h2>
-        <p className="mt-2 text-sm text-ink/60">
-          {day.freeCount} open court {day.freeCount === 1 ? "hour" : "hours"}{" "}
-          across {courts.length} {courts.length === 1 ? "court" : "courts"}
-        </p>
-      </div>
+      <Housing screws={false} className="flex items-end justify-between gap-4 px-6 py-5">
+        <div className="min-w-0">
+          <Stencil className="block text-xs text-on-stage/65">{sport.name}</Stencil>
+          <h2 className="display mt-2 text-3xl">{formatLongDate(dateKey)}</h2>
+          <p className="mt-2 text-sm text-on-stage/70">
+            Across {courts.length} {courts.length === 1 ? "court" : "courts"}
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <Stencil className="block text-[0.7rem] text-on-stage/65">Open hours</Stencil>
+          <span className="readout mt-2 inline-flex rounded-lg px-3 py-2 text-3xl">
+            <Seg value={pad(day.freeCount)} label={`${day.freeCount} open court hours`} />
+          </span>
+        </div>
+      </Housing>
 
       {!active ? (
         <div className="flex flex-1 flex-col items-center justify-center px-8 py-12 text-center">
           <CalendarX2 size={32} className="text-accent" aria-hidden="true" />
           <p className="mt-4 font-semibold">No open times on this date</p>
-          <p className="mt-2 text-sm text-ink/65">
-            Pick another date on the calendar.
-          </p>
+          <p className="mt-2 text-sm text-ink/65">Pick another date on the calendar.</p>
         </div>
       ) : (
         <>
           {/* Court tabs */}
           <div className="px-6 pt-5">
-            <div
-              role="tablist"
-              aria-label="Court"
-              className="flex gap-1 overflow-x-auto rounded-full bg-ink/5 p-1"
-            >
+            <div role="tablist" aria-label="Court" className="flex gap-1 overflow-x-auto rounded-full bg-ink/5 p-1">
               {courts.map((c) => {
                 const selected = c.id === active.id;
                 return (
@@ -187,9 +162,7 @@ export default function SlotTable({ sportId, dateKey }) {
                     )}
                     <span className="relative">
                       {c.name}
-                      <span className="ml-1.5 text-xs font-medium opacity-70">
-                        {c.hours.length}
-                      </span>
+                      <span className="ml-1.5 text-xs font-medium opacity-70">{c.hours.length}</span>
                     </span>
                   </button>
                 );
@@ -204,10 +177,7 @@ export default function SlotTable({ sportId, dateKey }) {
             <span className="pr-4">Rate</span>
             <span className="text-center">Add</span>
           </div>
-          <ul
-            key={`${sportId}-${dateKey}-${active.id}`}
-            className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-6 pb-6"
-          >
+          <ul key={`${sportId}-${dateKey}-${active.id}`} className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-6 pb-6">
             {active.hours.map((hour, i) => {
               const id = slotId({ sportId, dateKey, hour, courtId: active.id });
               const price = priceFor(sport, dateKey, hour);
@@ -221,15 +191,7 @@ export default function SlotTable({ sportId, dateKey }) {
                   peak={isPeak(dateKey, hour)}
                   inCart={has(id)}
                   onClick={() =>
-                    toggle({
-                      id,
-                      sportId,
-                      dateKey,
-                      hour,
-                      courtId: active.id,
-                      courtName: active.name,
-                      price,
-                    })
+                    toggle({ id, sportId, dateKey, hour, courtId: active.id, courtName: active.name, price })
                   }
                 />
               );

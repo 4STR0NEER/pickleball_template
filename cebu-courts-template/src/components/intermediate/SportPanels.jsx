@@ -5,8 +5,10 @@ import { SPORTS } from '../../config/site.js'
 import { peso } from '../../utils/date.js'
 import useMediaQuery from '../../hooks/useMediaQuery.js'
 import PhotoSlot from './PhotoSlot.jsx'
+import { Seg, Stencil } from '../board/Board.jsx'
 
-const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
+// Panels travel on screen: ease-in-out
+const EASE = 'cubic-bezier(0.77, 0, 0.175, 1)'
 
 function courtTypes(sport) {
   const counts = {}
@@ -73,10 +75,10 @@ function SportPanel({ sport, state, onActivate, interactive }) {
         className="absolute inset-x-0 bottom-0 p-7 transition-opacity duration-500 lg:p-10"
         style={{ opacity: compressed ? 0 : 1, transitionDelay: compressed ? '0ms' : '200ms' }}
       >
-        <p className="text-sm font-medium opacity-75">
+        <Stencil className="block text-xs text-on-stage/70">
           {sport.courts.length} {sport.courts.length === 1 ? 'court' : 'courts'}
-        </p>
-        <h3 className="display mt-2 max-w-[30rem] text-4xl lg:text-5xl">{sport.name}</h3>
+        </Stencil>
+        <h3 className="display mt-2 max-w-[30rem] text-5xl lg:text-6xl">{sport.name}</h3>
 
         {/* Details open with a height transition; fixed width so text never reflows mid-animation */}
         <div
@@ -99,12 +101,15 @@ function SportPanel({ sport, state, onActivate, interactive }) {
                 ))}
               </ul>
               <div className="mt-7 flex flex-wrap items-center gap-5">
-                <span className="inline-flex items-center gap-2 rounded-full bg-on-stage px-5 py-3 text-sm font-semibold text-stage transition-transform duration-300 group-hover:-translate-y-0.5">
+                <span className="inline-flex items-center gap-2 rounded-full bg-lamp px-5 py-3 text-sm font-semibold text-stage shadow-[inset_0_-3px_0_rgb(0_0_0/0.22)] transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-active:scale-[0.97]">
                   Book now
                   <ArrowUpRight size={16} aria-hidden="true" />
                 </span>
-                <span className="text-sm opacity-80">
-                  From <span className="display text-xl">{peso(sport.rate)}</span> per hour
+                <span className="flex items-center gap-3">
+                  <Stencil className="text-xs text-on-stage/70">From ₱</Stencil>
+                  <span className="readout inline-flex rounded-md px-2.5 py-1.5 text-xl">
+                    <Seg value={sport.rate} label={`${peso(sport.rate)} per hour`} />
+                  </span>
                 </span>
               </div>
             </div>
@@ -126,9 +131,9 @@ export default function SportPanels() {
   }
 
   return (
-    <section id="sports" className="bg-bg pb-4 pt-24">
+    <section id="sports" className="bg-bg pb-4 pt-24 [overflow-anchor:none]">
       <div className="mx-auto max-w-7xl px-6 lg:pl-24">
-        <h2 className="display text-4xl sm:text-5xl">Pick your game</h2>
+        <h2 className="display text-6xl sm:text-7xl">Pick your game</h2>
         <p className="mt-4 max-w-xl text-lg text-ink/70">
           {isDesktop
             ? 'Hover a sport to see what is waiting on court. Click to check open times.'

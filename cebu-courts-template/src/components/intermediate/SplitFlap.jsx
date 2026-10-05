@@ -35,7 +35,7 @@ function FlapTile({ char }) {
   Split-flap headline. Tiles sit blank until `active`, then cycle random
   letters and settle one by one from left to right (about 1.6 s in total).
 */
-export default function SplitFlap({ text, active, onSettled }) {
+export default function SplitFlap({ text, active, onSettled, settleBase = 650, step = 38 }) {
   const reduce = useReducedMotion()
   const target = text.toUpperCase()
   const [display, setDisplay] = useState(() => target.replace(/\S/g, ' '))
@@ -53,7 +53,7 @@ export default function SplitFlap({ text, active, onSettled }) {
     const settleAt = {}
     let n = 0
     for (let i = 0; i < target.length; i++) {
-      if (target[i] !== ' ') settleAt[i] = 650 + n++ * 38
+      if (target[i] !== ' ') settleAt[i] = settleBase + n++ * step
     }
 
     const start = performance.now()
@@ -75,7 +75,7 @@ export default function SplitFlap({ text, active, onSettled }) {
     }, 80)
 
     return () => clearInterval(id)
-  }, [active, target, reduce])
+  }, [active, target, reduce, settleBase, step])
 
   // Break the headline into two balanced lines; words never split across lines
   const lines = balanceLines(target)

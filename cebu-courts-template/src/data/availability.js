@@ -4,7 +4,7 @@
   between renders. Replace getDay() with a real API call when a backend exists.
 */
 import { SITE, SPORTS } from '../config/site.js'
-import { fromKey, toKey } from '../utils/date.js'
+import { addDays, fromKey, toKey } from '../utils/date.js'
 
 export const HOURS = Array.from({ length: SITE.hours.close - SITE.hours.open }, (_, i) => SITE.hours.open + i)
 
@@ -89,4 +89,15 @@ export function getDay(sportId, dateKey) {
 
   cache.set(cacheKey, day)
   return day
+}
+
+/* The next hour with a free court for a sport, looking up to three days ahead */
+export function nextOpening(sportId) {
+  const now = new Date()
+  for (let d = 0; d < 3; d++) {
+    const dateKey = toKey(addDays(now, d))
+    const slot = getDay(sportId, dateKey).slots.find((s) => s.free.length > 0)
+    if (slot) return { dateKey, hour: slot.hour, count: slot.free.length, isToday: d === 0 }
+  }
+  return null
 }

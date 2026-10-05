@@ -2,7 +2,15 @@
 
 @theme {
   --font-sans: "Figtree Variable", "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  /* Stadium signage: condensed, heavy, built for distance */
+  --font-display: "Big Shoulders Display Variable", "Big Shoulders Display", "Arial Narrow", sans-serif;
+  /* Seven segment scoreboard numerals */
+  --font-seg: "DSEG7", ui-monospace, monospace;
+
+  /* Motion curves (strong ease-out for UI, ease-in-out for on-screen travel, drawer) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* Palette roles. Values are written at runtime by theme/palettes.js */
@@ -27,6 +35,7 @@
   --color-on-flip-b: var(--c-on-flip-b);
   --color-glow-1: var(--c-glow-1);
   --color-glow-2: var(--c-glow-2);
+  --color-lamp: var(--c-lamp);
 }
 
 /* Fallback (Palette 3, the default) so nothing flashes before JS runs */
@@ -51,6 +60,7 @@
   --c-on-flip-b: #1f0a1b;
   --c-glow-1: #d4954d;
   --c-glow-2: #e3dea4;
+  --c-lamp: #e8a65a;
   color-scheme: light;
 }
 
@@ -66,6 +76,8 @@ html {
 
 body {
   @apply bg-bg text-ink font-sans antialiased;
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--c-primary);
   /* Sliding panels start off-screen; clip keeps the page from scrolling sideways */
   overflow-x: clip;
 }
@@ -73,9 +85,85 @@ body {
 /* Display face for headlines, prices, and the business name */
 .display {
   font-family: var(--font-display);
-  font-weight: 750;
-  letter-spacing: -0.035em;
-  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+/* Browser surfaces carry the palette too */
+::selection {
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+}
+html {
+  scrollbar-color: color-mix(in srgb, var(--c-ink) 35%, transparent) transparent;
+}
+
+/* ================= Scoreboard hardware (both tiers) ================= */
+
+/* Matte housing: the board itself */
+.housing {
+  position: relative;
+  isolation: isolate;
+  color: var(--c-on-stage);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--c-stage), white 7%) 0%, var(--c-stage) 38%, color-mix(in srgb, var(--c-stage), black 22%) 100%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 9%, transparent),
+    inset 0 -3px 0 color-mix(in srgb, black 35%, transparent),
+    0 28px 50px -28px color-mix(in srgb, black 60%, transparent);
+}
+.housing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Recessed window that numerals sit in */
+.readout {
+  background: color-mix(in srgb, var(--c-stage), black 55%);
+  box-shadow:
+    inset 0 2px 6px color-mix(in srgb, black 70%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, white 5%, transparent),
+    0 1px 0 color-mix(in srgb, white 7%, transparent);
+}
+
+/* Lit segments with the unlit 8s ghosting behind them */
+.seg {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-seg);
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--c-lamp);
+  text-shadow: 0 0 0.35em color-mix(in srgb, var(--c-lamp) 55%, transparent);
+  white-space: nowrap;
+}
+.seg::before {
+  content: attr(data-ghost);
+  position: absolute;
+  inset: 0;
+  color: color-mix(in srgb, var(--c-lamp) 11%, transparent);
+  text-shadow: none;
+  z-index: -1;
+}
+
+/* Painted label lettering on the housing */
+.stencil {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1;
 }
 
 section[id] {
@@ -122,13 +210,14 @@ section[id] {
   --flap-ms: 70ms;
   position: relative;
   display: inline-block;
-  width: 0.84em;
-  height: 1.14em;
+  /* Proportioned for a condensed face */
+  width: 0.66em;
+  height: 1.12em;
   border-radius: 0.1em;
-  background: var(--c-stage);
+  background: color-mix(in srgb, var(--c-stage), black 50%);
   color: var(--c-on-stage);
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0;
   perspective: 4em;
   box-shadow:
@@ -159,7 +248,7 @@ section[id] {
   background:
     linear-gradient(var(--c-on-stage), var(--c-on-stage)) left / 0.06em 100% no-repeat,
     linear-gradient(var(--c-on-stage), var(--c-on-stage)) right / 0.06em 100% no-repeat;
-  opacity: 0.3;
+  opacity: 0.22;
   z-index: 7;
 }
 
@@ -174,12 +263,12 @@ section[id] {
 .flap-half.top {
   top: 0;
   border-radius: 0.1em 0.1em 0 0;
-  background: color-mix(in srgb, var(--c-stage), white 9%);
+  background: color-mix(in srgb, var(--c-stage), black 32%);
 }
 .flap-half.bottom {
   bottom: 0;
   border-radius: 0 0 0.1em 0.1em;
-  background: var(--c-stage);
+  background: color-mix(in srgb, var(--c-stage), black 48%);
 }
 .flap-half > span {
   position: absolute;
@@ -190,7 +279,7 @@ section[id] {
   align-items: center;
   justify-content: center;
   line-height: 1;
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 .flap-half.top > span {
   top: 0;
@@ -231,4 +320,11 @@ section[id] {
     animation-duration: 1ms;
     animation-delay: 0ms;
   }
+}
+
+/* ================= Pro tier ================= */
+
+/* Cinema mode: the header steps aside while the tour plays */
+[data-cinema='on'] .site-header {
+  transform: translateY(-100%);
 }

@@ -19,10 +19,10 @@ export function LogoMark({ size = 'md', tone = 'accent' }) {
   )
 }
 
-export function BrandLockup({ size = 'md', link = true }) {
+export function BrandLockup({ size = 'md', link = true, tone = 'accent' }) {
   const inner = (
     <>
-      <LogoMark size={size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : 'md'} />
+      <LogoMark size={size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : 'md'} tone={tone === 'stage' ? 'current' : 'accent'} />
       <span className={`display ${size === 'sm' ? 'text-lg' : 'text-xl'}`}>{SITE.businessName}</span>
     </>
   )

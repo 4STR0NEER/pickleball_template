@@ -18,6 +18,7 @@
   stage    dramatic dark ground: loader, split-flap tiles, photo slots, scoreboard
   flip-a/b the two scoreboard card colours
   glow-1/2 loader light pulses
+  lamp     lit scoreboard segments (a brightened tint of a palette colour)
 */
 
 const mix = (color, pct, base = 'transparent') => `color-mix(in srgb, ${color} ${pct}%, ${base})`
@@ -45,6 +46,7 @@ export const palettes = [
       'flip-b': '#A1937E',
       'glow-1': '#A1937E',
       'glow-2': '#594836',
+      lamp: '#E6C9A0',
     },
   },
   {
@@ -64,11 +66,13 @@ export const palettes = [
       soft: mix('#4A5C6A', 55, '#06141B'),
       ball: '#CCD0CF',
       line: mix('#9BA8AB', 26),
-      stage: '#06141B',
+      // Lifted off the page ground so the board keeps its edge
+      stage: '#1B2C38', // #11212D lifted 18% toward #4A5C6A
       'flip-a': '#4A5C6A',
       'flip-b': '#CCD0CF',
       'glow-1': '#9BA8AB',
       'glow-2': '#4A5C6A',
+      lamp: '#E4ECEA',
     },
   },
   {
@@ -93,6 +97,7 @@ export const palettes = [
       'flip-b': '#D4954D',
       'glow-1': '#D4954D',
       'glow-2': '#E3DEA4',
+      lamp: '#E8A65A',
     },
   },
   {
@@ -117,6 +122,7 @@ export const palettes = [
       'flip-b': '#A58D66',
       'glow-1': '#407E8C',
       'glow-2': '#C0D5D6',
+      lamp: '#D9BE8C',
     },
   },
 ]

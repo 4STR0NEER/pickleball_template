@@ -9,7 +9,7 @@ import { peso } from '../utils/date.js'
 export default function CartButton() {
   const { count, total, open, setOpen } = useCart()
   const { tier } = useShowcase()
-  const fx = tier === 'intermediate'
+  const fx = tier !== 'basic'
   const { pathname } = useLocation()
   const [scope, animate] = useAnimate()
   const [sweep, setSweep] = useState(0)
@@ -32,8 +32,8 @@ export default function CartButton() {
       ref={scope}
       type="button"
       onClick={() => setOpen(true)}
-      className={`fixed bottom-5 right-5 z-30 inline-flex items-center gap-3 overflow-hidden rounded-full bg-primary py-3 pl-4 pr-5 text-on-primary shadow-lg shadow-black/25 hover:brightness-110 ${
-        fx ? 'transition-[filter,transform] duration-300 hover:-translate-y-0.5' : ''
+      className={`fixed bottom-5 right-5 z-30 inline-flex items-center gap-3 overflow-hidden rounded-full bg-primary py-3 pl-4 pr-5 text-on-primary shadow-[inset_0_-3px_0_rgb(0_0_0/0.22),0_12px_24px_-10px_rgb(0_0_0/0.4)] hover:brightness-110 active:scale-[0.97] ${
+        fx ? 'transition-[filter,transform] duration-160 ease-out' : ''
       }`}
       aria-label={`Open cart, ${count} ${count === 1 ? 'slot' : 'slots'}`}
     >
