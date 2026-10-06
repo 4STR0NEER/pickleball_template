@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 
-/* Hides on scroll down, shows on scroll up. `scrolled` is true once off the very top. */
+/* Hides on scroll down, shows on scroll up. `scrolled` is true once off the very top.
+   Phones keep it put: toggling on every direction change (while the URL bar also
+   slides) reads as a jarring snap. */
 export default function useScrollHide(threshold = 120) {
   const [hidden, setHidden] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -8,6 +10,7 @@ export default function useScrollHide(threshold = 120) {
   useEffect(() => {
     let last = window.scrollY
     let ticking = false
+    const phone = window.matchMedia('(max-width: 1023px)')
 
     const onScroll = () => {
       if (ticking) return
@@ -16,7 +19,7 @@ export default function useScrollHide(threshold = 120) {
         const y = window.scrollY
         setScrolled(y > 8)
         if (Math.abs(y - last) > 6) {
-          setHidden(y > last && y > threshold)
+          setHidden(!phone.matches && y > last && y > threshold)
           last = y
         }
         ticking = false

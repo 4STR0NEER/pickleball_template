@@ -155,6 +155,97 @@ function Chapter({ sport, index, onActive }) {
   )
 }
 
+/* Phone layout: swipe sideways through sports; the board strip follows the card in view */
+function MobileCourts() {
+  const trackRef = useRef(null)
+  const [index, setIndex] = useState(0)
+  const sport = SPORTS[index]
+
+  const onScroll = () => {
+    const el = trackRef.current
+    const i = Math.round(el.scrollLeft / el.firstElementChild.offsetWidth)
+    setIndex(Math.min(SPORTS.length - 1, Math.max(0, i)))
+  }
+  const goTo = (i) => {
+    const el = trackRef.current
+    el.scrollTo({ left: el.children[i].offsetLeft - el.offsetLeft - 16, behavior: 'smooth' })
+  }
+
+  return (
+    <div className="pb-8 pt-10 lg:hidden">
+      <div className="px-4 sm:px-6">
+        <Housing screws={false} className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+          <div className="text-[1.15rem]">
+            <SplitFlap text={boardName(sport)} active settleBase={180} step={45} />
+          </div>
+          <div className="readout rounded-md px-2.5 py-1.5 text-xl">
+            <RollingSeg value={String(sport.rate)} label={`From ${peso(sport.rate)}`} />
+          </div>
+        </Housing>
+      </div>
+
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-px-4 px-4 pb-2 [scrollbar-width:none] sm:scroll-px-6 sm:px-6 [&::-webkit-scrollbar]:hidden"
+        aria-label="Sports"
+      >
+        {SPORTS.map((s) => (
+          <article
+            key={s.id}
+            className="flex w-[86%] max-w-md shrink-0 snap-start flex-col overflow-hidden rounded-[1.75rem] border border-line bg-raised"
+          >
+            <PhotoSlot sport={s.id} label={`Photo: ${s.name.toLowerCase()} courts`} className="aspect-[16/11]" />
+            <div className="flex flex-1 flex-col p-5">
+              <h3 className="display text-4xl">{s.name}</h3>
+              <p className="mt-3 text-base leading-relaxed text-ink/75">{s.summary}</p>
+              <ul className="mt-4 flex flex-wrap gap-2">
+                {s.features.map((f) => (
+                  <li key={f} className="rounded-full bg-soft px-3 py-1.5 text-xs font-medium text-ink/85">
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-sm text-ink/70">
+                {s.courts.length} courts · {peso(s.rate)}/hr · peak {peso(s.peakRate)}
+              </p>
+              <Link
+                to={`/booking?sport=${s.id}`}
+                className="mt-auto inline-flex items-center gap-1.5 pt-5 font-semibold text-primary"
+              >
+                Book {s.name.split(' /')[0].toLowerCase()}
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </Link>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-4 flex justify-center gap-1" role="tablist" aria-label="Choose a sport">
+        {SPORTS.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            role="tab"
+            aria-selected={i === index}
+            aria-label={s.name}
+            onClick={() => goTo(i)}
+            className="flex h-8 w-8 items-center justify-center"
+          >
+            <span
+              className="h-2 rounded-full transition-[width,background-color] duration-300 ease-out"
+              style={{
+                width: i === index ? '1.25rem' : '0.5rem',
+                background: i === index ? 'var(--c-primary)' : 'color-mix(in srgb, var(--c-ink) 20%, transparent)',
+              }}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /*
   Pro "sticky scoreboard": the board stays pinned while each sport's
   chapter scrolls past; readouts roll, the name flaps and court lamps
@@ -170,27 +261,17 @@ export default function ScoreboardCourts() {
       <div className="mx-auto max-w-7xl px-4 pt-24 sm:px-6 lg:pl-24">
         <h2 className="display text-6xl sm:text-7xl">The courts</h2>
         <p className="mt-5 max-w-xl text-lg text-ink/70">
-          Scroll through each sport. The board keeps score of courts, rates and hours as you go.
+          <span className="lg:hidden">Swipe</span><span className="hidden lg:inline">Scroll</span> through each sport. The board keeps score of courts, rates and hours as you go.
         </p>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14 lg:pl-24">
-        {/* Board: pinned beside the chapters on desktop, pinned under the header on phones */}
-        <div className="sticky top-20 z-10 h-fit lg:top-24 lg:h-[calc(100svh-7.5rem)]">
-          <div className="hidden h-full lg:block">
-            <Board sport={sport} index={index} />
-          </div>
-          <Housing screws={false} className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 lg:hidden">
-            <div className="text-[1.15rem]">
-              <SplitFlap text={boardName(sport)} active settleBase={180} step={45} />
-            </div>
-            <div className="readout rounded-md px-2.5 py-1.5 text-xl">
-              <RollingSeg value={String(sport.rate)} label={`From ${peso(sport.rate)}`} />
-            </div>
-            <Link to={`/booking?sport=${sport.id}`} className="text-lamp" aria-label={`Book ${sport.name}`}>
-              <ArrowUpRight size={20} aria-hidden="true" />
-            </Link>
-          </Housing>
+      {/* Phones: a board readout over a horizontal swipe, one card per sport */}
+      <MobileCourts />
+
+      <div className="mx-auto hidden max-w-7xl gap-14 px-6 pl-24 lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        {/* Board: pinned beside the chapters */}
+        <div className="sticky top-24 z-10 h-[calc(100svh-7.5rem)]">
+          <Board sport={sport} index={index} />
         </div>
 
         <div id="courts">

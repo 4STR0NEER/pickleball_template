@@ -5,6 +5,7 @@ import { SITE, TOUR } from '../../config/site.js'
 import { useShowcase } from '../../context/ShowcaseContext.jsx'
 import { Stencil } from '../board/Board.jsx'
 import SlideTextButton from '../kokonutui/slide-text-button.jsx'
+import useMediaQuery from '../../hooks/useMediaQuery.js'
 
 const OUT = [0.23, 1, 0.32, 1]
 const TRAVEL = [0.77, 0, 0.175, 1]
@@ -26,7 +27,9 @@ const chapterAt = (t) => {
 */
 export default function VideoHero() {
   const { loading } = useShowcase()
-  const reduce = useReducedMotion()
+  // Phones skip the scroll-linked drift: the URL bar resizing the viewport mid-scroll makes it jump
+  const phone = useMediaQuery('(max-width: 1023px)')
+  const reduce = useReducedMotion() || phone
   const sectionRef = useRef(null)
   const videoRef = useRef(null)
   const startedRef = useRef(false)
@@ -78,7 +81,7 @@ export default function VideoHero() {
   const current = TOUR.chapters[chapter]
 
   return (
-    <section ref={sectionRef} className="relative h-[150svh] bg-stage" aria-label="Venue">
+    <section ref={sectionRef} className="relative h-[100svh] min-h-[34rem] bg-stage lg:h-[150svh]" aria-label="Venue">
       <div className="sticky top-0 h-[100svh] min-h-[34rem] overflow-hidden text-white">
         <motion.div className="absolute inset-0" style={reduce ? undefined : { scale: stageScale }}>
           <video
